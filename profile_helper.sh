@@ -22,6 +22,11 @@ _base16()
   ln -fs $script ~/.base16_theme
   export BASE16_THEME=${theme}
   echo -e "if \0041exists('g:colors_name') || g:colors_name != 'base16-$theme'\n  colorscheme base16-$theme\nendif" >| ~/.vimrc_background
+  local TMPFILE=`mktemp -q /tmp/Xresources.XXXXXXXXXX` && ( [ -f $HOME/.config/base16-xresources/xresources/base16-$theme-256.Xresources ] \
+   && (head -n -2 $HOME/.Xresources && echo -e "#include \".config/base16-xresources/xresources/base16-$theme-256.Xresources\"\n! vim:ft=xdefaults" ) > $TMPFILE \
+   && cp $TMPFILE $HOME/.Xresources && xrdb $HOME/.Xresources ) || notify-send "Theme base16-$theme does not exist for Xresources"
+  [ -x $HOME/.config/i3/scripts/update_color_theme.sh ] && ( $HOME/.config/i3/scripts/update_color_theme.sh \
+   && (echo "`date`: Base16 theme reload " && i3-msg reload) >> $HOME/.config/i3/stdout) || notify-send "Theme base16-$theme does not exist for i3"
 }
 FUNC
 for script in $script_dir/scripts/base16*.sh; do
